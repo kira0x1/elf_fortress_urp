@@ -12,20 +12,22 @@ namespace Kira.Terrain
         [SerializeField]
         private int tilesY = 32;
 
+        [SerializeField]
+        private TerrainRegion[] regions;
+
         private MapGenerator mapGenerator;
 
         private void Start()
         {
             mapGenerator = FindObjectOfType<MapGenerator>();
-            float[,] noiseMap = mapGenerator.GetNoiseMap();
 
-            for (int x = 0; x < noiseMap.GetLength(0); x++)
-            {
-                for (int y = 0; y < noiseMap.GetLength(1); y++)
-                {
-                    Debug.Log(noiseMap[x, y]);
-                }
-            }
+            // float[,] noiseMap = mapGenerator.GetNoiseMap();
+            // for (int x = 0; x < noiseMap.GetLength(0); x++)
+            // {
+            //     for (int y = 0; y < noiseMap.GetLength(1); y++)
+            //     {
+            //     }
+            // }
 
             GenerateTerrain();
         }
@@ -46,10 +48,22 @@ namespace Kira.Terrain
             {
                 for (int x = 0; x < noiseMap.GetLength(1); x++)
                 {
+                    float height = noiseMap[x, y] * 4f;
+                    TerrainRegion region = regions[0];
+
+                    foreach (TerrainRegion terrainRegion in regions)
+                    {
+                        if (height > terrainRegion.height)
+                            region = terrainRegion;
+                    }
+
+
                     Tile t = Instantiate(tilePrefab, transform);
+                    t.SetRegion(region);
                     t.transform.position = pos;
                     pos.x += scale;
-                    pos.y = Mathf.Floor(noiseMap[x, y] * 3f);
+                    pos.y = height;
+                    Debug.Log(height);
                 }
 
                 pos.z += scale;
